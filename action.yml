@@ -1,0 +1,36 @@
+name: 'Transfer files using SCP'
+author: 'Kitty Barnett'
+inputs:
+  key:
+    description: ''
+  source_host:
+    description: ''
+  source_username:
+    description: ''
+  source_file:
+    description: ''
+  destination_host:
+    description: ''
+  destination_username:
+    description: ''
+  destination_file:
+    description: '/'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Transfer file
+      run: |
+        echo "$SSH_KEY" > private_key
+        chmod 0600 ./private_key
+        scp -o StrictHostKeyChecking=no -i ./private_key ${SRC_USER:+$SRC_USER@}${SRC_HOST:+$SRC_HOST:}${SRC_FILE} ${DST_USER:+$DST_USER@}${DST_HOST:+$DST_HOST:}${DST_FILE}
+        rm private_key
+      shell: bash
+      env:
+        SSH_KEY: ${{ inputs.key }}
+        SRC_FILE: ${{ inputs.source_file }}
+        SRC_HOST: ${{ inputs.source_host }}
+        SRC_USER: ${{ inputs.source_username }}
+        DST_HOST: ${{ inputs.destination_host }}
+        DST_USER: ${{ inputs.destination_username }}
+        DST_FILE: ${{ inputs.destination_file }}
