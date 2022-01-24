@@ -23,7 +23,19 @@ runs:
       run: |
         echo "$SSH_KEY" > private_key
         chmod 0600 ./private_key
+        
+        if [ "${DST_FILE: -1}" == "/" ]
+        then
+            if [ -z "$DST_HOST" ]
+            then
+                mkdir -p "$DST_FILE"
+            else
+                echo -e "mkdir $DST_FILE" | sftp -o StrictHostKeyChecking=no -i ./private_key ${DST_USER:+$DST_USER@}${DST_HOST:+$DST_HOST:}
+            fi
+        fi
+        
         scp -o StrictHostKeyChecking=no -i ./private_key ${SRC_USER:+$SRC_USER@}${SRC_HOST:+$SRC_HOST:}${SRC_FILE} ${DST_USER:+$DST_USER@}${DST_HOST:+$DST_HOST:}${DST_FILE}
+        
         rm private_key
       shell: bash
       env:
