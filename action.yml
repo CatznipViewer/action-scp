@@ -15,6 +15,9 @@ inputs:
     description: ''
   destination_file:
     description: '/'
+  recursive:
+    type: boolean
+    default: false
 
 runs:
   using: 'composite'
@@ -34,7 +37,13 @@ runs:
             fi
         fi
         
-        scp -o StrictHostKeyChecking=no -i ./private_key ${SRC_USER:+$SRC_USER@}${SRC_HOST:+$SRC_HOST:}${SRC_FILE} ${DST_USER:+$DST_USER@}${DST_HOST:+$DST_HOST:}${DST_FILE}
+        EXTRA_PARAMS=""
+        if [ "${RECURSIVE}" == "true" ]
+        then
+          EXTRA_PARAMS+=" -r"
+        fi
+        
+        scp $EXTRA_PARAMS -o StrictHostKeyChecking=no -i ./private_key ${SRC_USER:+$SRC_USER@}${SRC_HOST:+$SRC_HOST:}${SRC_FILE} ${DST_USER:+$DST_USER@}${DST_HOST:+$DST_HOST:}${DST_FILE}
         
         rm private_key
       shell: bash
@@ -46,3 +55,4 @@ runs:
         DST_HOST: ${{ inputs.destination_host }}
         DST_USER: ${{ inputs.destination_username }}
         DST_FILE: ${{ inputs.destination_file }}
+        RECURSIVE: ${{ inputs.recursive }}
